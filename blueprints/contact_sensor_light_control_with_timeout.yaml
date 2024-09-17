@@ -1,0 +1,78 @@
+# Blueprint to control a light or switch based on a contact sensor with an optional auto-off timeout
+blueprint:
+  name: Contact Sensor Light Control with Timeout
+  description: >
+    Turn on a light or switch when a contact sensor is opened and turn it off when closed. Includes an optional timeout to automatically turn off the light if the door remains open.
+
+  domain: automation
+  input:
+    contact_sensor:
+      name: Contact Sensor
+      description: The contact sensor to monitor
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: door
+    target_device:
+      name: Light or Switch
+      description: The light or switch to control
+      selector:
+        target:
+          entity:
+            domain:
+              - light
+              - switch
+    timeout:
+      name: Auto-Off Timeout (Optional)
+      description: Time in seconds to wait before automatically turning off the light if the door remains open (set to 0 to disable)
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 3600
+          unit_of_measurement: seconds
+          mode: slider
+
+mode: restart
+
+trigger:
+  - platform: state
+    entity_id: !input contact_sensor
+
+variables:
+  contact_sensor: !input contact_sensor
+  target_device: !input target_device
+  timeout: !input timeout
+
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input contact_sensor
+            state: 'on'
+        sequence:
+          - service: homeassistant.turn_on
+            target: !input target_device
+          - condition: template
+            value_template: "{{ timeout | int > 0 }}"
+          - wait_for_trigger:
+              - platform: state
+                entity_id: !input contact_sensor
+                to: 'off'
+            timeout: "{{ timeout | int }}"
+            continue_on_timeout: true
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input contact_sensor
+                    state: 'on'
+                sequence:
+                  - service: homeassistant.turn_off
+                    target: !input target_device
+      - conditions:
+          - condition: state
+            entity_id: !input contact_sensor
+            state: 'off'
+        sequence:
+          - service: homeassistant.turn_off
+            target: !input target_device
