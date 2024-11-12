@@ -1,5 +1,5 @@
 blueprint:
-  name: AqaraDouble Rocker Switch
+  name: Aqara Double Rocker Switch
   description: Blueprint for Aqara H1 double rocker wireless remote switch, model WXKG15LM, using Zigbee2MQTT.
   domain: automation
   input:
