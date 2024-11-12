@@ -1,0 +1,90 @@
+blueprint:
+  name: AqaraDouble Rocker Switch
+  description: Blueprint for Aqara H1 double rocker wireless remote switch, model WXKG15LM, using Zigbee2MQTT.
+  domain: automation
+  input:
+    device_name:
+      name: Device Name
+      description: Friendly name of your device in Zigbee2MQTT.
+      selector:
+        text: {}
+    left_single_click:
+      name: Left Rocker - Single Click
+      description: Action to run on single click of the left rocker.
+      default: []
+      selector:
+        action: {}
+    left_double_click:
+      name: Left Rocker - Double Click
+      description: Action to run on double click of the left rocker.
+      default: []
+      selector:
+        action: {}
+    left_triple_click:
+      name: Left Rocker - Triple Click
+      description: Action to run on triple click of the left rocker.
+      default: []
+      selector:
+        action: {}
+    left_hold:
+      name: Left Rocker - Hold
+      description: Action to run when holding the left rocker.
+      default: []
+      selector:
+        action: {}
+    right_single_click:
+      name: Right Rocker - Single Click
+      description: Action to run on single click of the right rocker.
+      default: []
+      selector:
+        action: {}
+    right_double_click:
+      name: Right Rocker - Double Click
+      description: Action to run on double click of the right rocker.
+      default: []
+      selector:
+        action: {}
+    right_triple_click:
+      name: Right Rocker - Triple Click
+      description: Action to run on triple click of the right rocker.
+      default: []
+      selector:
+        action: {}
+    right_hold:
+      name: Right Rocker - Hold
+      description: Action to run when holding the right rocker.
+      default: []
+      selector:
+        action: {}
+
+trigger:
+  - platform: mqtt
+    topic: "zigbee2mqtt/{{ device_name }}/action"
+
+action:
+  - choose:
+      - conditions:
+          - "{{ trigger.payload == 'single_left' }}"
+        sequence: !input left_single_click
+      - conditions:
+          - "{{ trigger.payload == 'double_left' }}"
+        sequence: !input left_double_click
+      - conditions:
+          - "{{ trigger.payload == 'triple_left' }}"
+        sequence: !input left_triple_click
+      - conditions:
+          - "{{ trigger.payload == 'hold_left' }}"
+        sequence: !input left_hold
+      - conditions:
+          - "{{ trigger.payload == 'single_right' }}"
+        sequence: !input right_single_click
+      - conditions:
+          - "{{ trigger.payload == 'double_right' }}"
+        sequence: !input right_double_click
+      - conditions:
+          - "{{ trigger.payload == 'triple_right' }}"
+        sequence: !input right_triple_click
+      - conditions:
+          - "{{ trigger.payload == 'hold_right' }}"
+        sequence: !input right_hold
+    default: []
